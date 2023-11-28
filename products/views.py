@@ -105,7 +105,7 @@ def review_detail_api_view(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND,
                         data={'message': 'Review not found'})
     if request.method == 'GET':
-        data = ProductSerializer(instance=review_detail, many=False).data
+        data = ReviewSerializer(instance=review_detail, many=False).data
         return Response(data=data)
     if request.method == 'PUT':
         review_detail.text = request.data.get('text')
