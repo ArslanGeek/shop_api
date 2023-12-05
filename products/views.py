@@ -2,7 +2,13 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Product, Category, Review
-from .serializers import ProductSerializer, CategorySerializer, ReviewSerializer, ProductReviewSerializer
+from .serializers import ProductSerializer, \
+    CategorySerializer, \
+    ReviewSerializer, \
+    ProductReviewSerializer, \
+    ProductValidateSerializer, \
+    CategoryValidateSerializer, \
+    ReviewValidateSerializer
 
 @api_view(['GET', 'POST'])
 def product_list_api_view(request):
@@ -11,14 +17,21 @@ def product_list_api_view(request):
         data = ProductSerializer(instance=product_list, many=True).data
         return Response(data=data)
     elif request.method == 'POST':
+        serializer = ProductValidateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data=serializer.errors)
         title = request.data.get('title')
         description = request.data.get('description')
         price = request.data.get('price')
         category_id = request.data.get('category_id')
+        # tags = request.data.get('tags')
+        tags = serializer.validated_data.get('tags')
 
         product = Product.objects.create(
             title=title, description=description, price=price, category_id=category_id
         )
+        product.tags.set(tags)
         product.save()
         return Response(data={'product_id': product.id},
                         status=status.HTTP_201_CREATED)
@@ -34,6 +47,8 @@ def product_detail_api_view(request, id):
         data = ProductSerializer(instance=product_detail, many=False).data
         return Response(data=data)
     if request.method == 'PUT':
+        serializer = ProductValidateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         product_detail.title = request.data.get('title')
         product_detail.description = request.data.get('description')
         product_detail.price = request.data.get('price')
@@ -53,6 +68,10 @@ def category_list_api_view(request):
         data = CategorySerializer(instance=category_list, many=True).data
         return Response(data=data)
     elif request.method == 'POST':
+        serializer = CategoryValidateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data=serializer.errors)
         name = request.data.get('name')
         category = Category.objects.create(
             name=name
@@ -72,6 +91,8 @@ def category_detail_api_view(request, id):
         data = CategorySerializer(instance=category_detail, many=False).data
         return Response(data=data)
     if request.method == 'PUT':
+        serializer = CategoryValidateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         category_detail.name = request.data.get('name')
         category_detail.save()
         return Response(data={'category_id': category_detail.id},
@@ -87,6 +108,10 @@ def review_list_api_view(request):
         data = ReviewSerializer(instance=review_list, many=True).data
         return Response(data=data)
     elif request.method == 'POST':
+        serializer = ReviewValidateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data=serializer.errors)
         text = request.data.get('text')
         product_id = request.data.get('product_id')
         stars = request.data.get('stars')
@@ -108,6 +133,8 @@ def review_detail_api_view(request, id):
         data = ReviewSerializer(instance=review_detail, many=False).data
         return Response(data=data)
     if request.method == 'PUT':
+        serializer = ReviewValidateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         review_detail.text = request.data.get('text')
         review_detail.product_id = request.data.get('product_id')
         review_detail.stars = request.data.get('stars')
