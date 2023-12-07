@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'products',
     'rest_framework.authtoken',
+    'users',
 ]
 
 REST_FRAMEWORK = {
