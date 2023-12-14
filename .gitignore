@@ -4,4 +4,6 @@ media
 static
 venv
 .idea
-__pycache__
+/products/__pycache__
+/shop_api/__pycache__
+/users/__pycache__
