@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from products import views
 from users import views as users_views
+from . import swagger
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -44,3 +45,5 @@ urlpatterns = [
 
 
 ]
+
+urlpatterns += swagger.urlpatterns
